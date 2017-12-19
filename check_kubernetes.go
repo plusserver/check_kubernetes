@@ -12,6 +12,7 @@ import (
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"os"
 )
 
 func main() {
@@ -25,13 +26,16 @@ func main() {
 	flag.Parse()
 
 	config, err := clientcmd.BuildConfigFromFlags("", kubeconfig)
+
 	if err != nil {
-		panic(err.Error())
+		fmt.Printf("Cannot configure kubernetes client: %s\n", err.Error())
+		os.Exit(nrpe.UNKNOWN)
 	}
 
 	clientset, err := kubernetes.NewForConfig(config)
 	if err != nil {
-		panic(err.Error())
+		fmt.Printf("Cannot create kubernetes client: %s\n", err.Error())
+		os.Exit(nrpe.UNKNOWN)
 	}
 
 	var level nrpe.Result
@@ -56,7 +60,15 @@ func main() {
 		level, message = nrpe.UNKNOWN, fmt.Sprintf("unsupported object type %s", objectType)
 	}
 
-	fmt.Printf("level=%d message=%s\n", level, message)
+	m := map[nrpe.Result]string{
+		nrpe.OK:       "OK",
+		nrpe.WARNING:  "WARNING",
+		nrpe.CRITICAL: "CRITICAL",
+		nrpe.UNKNOWN:  "UNKNOWN",
+	}
+
+	fmt.Printf("%s: %s\n", m[level], message)
+	os.Exit(int(level))
 }
 
 func handleLookupError(err error) (nrpe.Result, string) {

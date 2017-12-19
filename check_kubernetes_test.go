@@ -599,7 +599,7 @@ func TestService(t *testing.T) {
 				},
 				Status: corev1.ServiceStatus{
 					LoadBalancer: corev1.LoadBalancerStatus{
-						Ingress: []corev1.LoadBalancerIngress {{IP: "192.168.1.1"}},
+						Ingress: []corev1.LoadBalancerIngress{{IP: "192.168.1.1"}},
 					},
 				},
 			},
@@ -629,7 +629,7 @@ func TestService(t *testing.T) {
 		c := makeFakeclient()
 		c.CoreV1().Services("default").Create(&test.service)
 		result, message := checkService("default", test.service.ObjectMeta.Name, c)
-		a.Equal(test.result, result, fmt.Sprintf("testcase %s for service %+v failed", test.name,test.service))
+		a.Equal(test.result, result, fmt.Sprintf("testcase %s for service %+v failed", test.name, test.service))
 		a.NotEmpty(message, fmt.Sprintf("testcase %s for service %+v failed", test.name, test.service))
 		a.Regexp(test.message, message, fmt.Sprintf("testcase %s for service %+v failed", test.name, test.service))
 	}
