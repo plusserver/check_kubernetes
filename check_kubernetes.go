@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"os"
 
 	"github.com/Nexinto/check_kubernetes/nrpe"
 
@@ -12,7 +13,6 @@ import (
 
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	"os"
 )
 
 func main() {
@@ -56,6 +56,8 @@ func main() {
 		level, message = checkNode(name, clientset)
 	case "componentstatus":
 		level, message = checkComponentStatus(name, clientset)
+	case "service":
+		level, message = checkService(namespace, name, clientset)
 	default:
 		level, message = nrpe.UNKNOWN, fmt.Sprintf("unsupported object type %s", objectType)
 	}
