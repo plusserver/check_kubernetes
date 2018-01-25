@@ -145,7 +145,7 @@ func checkPod(namespace, name string, kube kubernetes.Interface) (nrpe.Result, s
 
 func checkReplicaSet(namespace, name string, kube kubernetes.Interface) (nrpe.Result, string) {
 
-	rs, err := kube.AppsV1().ReplicaSets(namespace).Get(name, metav1.GetOptions{})
+	rs, err := kube.AppsV1beta2().ReplicaSets(namespace).Get(name, metav1.GetOptions{})
 
 	if result, message := handleLookupError(err); result != nrpe.OK {
 		return result, message
@@ -169,7 +169,7 @@ func checkReplicaSet(namespace, name string, kube kubernetes.Interface) (nrpe.Re
 
 func checkDeployment(namespace, name string, kube kubernetes.Interface) (nrpe.Result, string) {
 
-	dep, err := kube.AppsV1().Deployments(namespace).Get(name, metav1.GetOptions{})
+	dep, err := kube.AppsV1beta2().Deployments(namespace).Get(name, metav1.GetOptions{})
 
 	if result, message := handleLookupError(err); result != nrpe.OK {
 		return result, message
@@ -193,7 +193,7 @@ func checkDeployment(namespace, name string, kube kubernetes.Interface) (nrpe.Re
 
 func checkDaemonSet(namespace, name string, kube kubernetes.Interface) (nrpe.Result, string) {
 
-	ds, err := kube.AppsV1().DaemonSets(namespace).Get(name, metav1.GetOptions{})
+	ds, err := kube.AppsV1beta2().DaemonSets(namespace).Get(name, metav1.GetOptions{})
 
 	if result, message := handleLookupError(err); result != nrpe.OK {
 		return result, message
@@ -222,7 +222,7 @@ func checkDaemonSet(namespace, name string, kube kubernetes.Interface) (nrpe.Res
 
 func checkStatefulSet(namespace, name string, kube kubernetes.Interface) (nrpe.Result, string) {
 
-	ss, err := kube.AppsV1().StatefulSets(namespace).Get(name, metav1.GetOptions{})
+	ss, err := kube.AppsV1beta2().StatefulSets(namespace).Get(name, metav1.GetOptions{})
 
 	if result, message := handleLookupError(err); result != nrpe.OK {
 		return result, message

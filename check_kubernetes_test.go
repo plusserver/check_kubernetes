@@ -11,12 +11,8 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/kubernetes/fake"
 
+	appsv1beta2 "k8s.io/api/apps/v1beta2"
 	corev1 "k8s.io/api/core/v1"
-
-	appsv1 "k8s.io/api/apps/v1"
-	// appsv1beta1 "k8s.io/api/apps/v1beta1"
-	// appsv1beta2 "k8s.io/api/apps/v1beta2"
-	// extv1beta1 "k8s.io/api/extensions/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -123,17 +119,17 @@ func TestReplicaSet(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		set     appsv1.ReplicaSet
+		set     appsv1beta2.ReplicaSet
 		result  nrpe.Result
 		message string
 	}{
 		{
 			name: "running",
-			set: appsv1.ReplicaSet{
+			set: appsv1beta2.ReplicaSet{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "myreplicaset",
 					Namespace: "default"},
-				Status: appsv1.ReplicaSetStatus{
+				Status: appsv1beta2.ReplicaSetStatus{
 					Replicas:          5,
 					AvailableReplicas: 5,
 					ReadyReplicas:     5,
@@ -144,11 +140,11 @@ func TestReplicaSet(t *testing.T) {
 		},
 		{
 			name: "degraded",
-			set: appsv1.ReplicaSet{
+			set: appsv1beta2.ReplicaSet{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "myreplicaset",
 					Namespace: "default"},
-				Status: appsv1.ReplicaSetStatus{
+				Status: appsv1beta2.ReplicaSetStatus{
 					Replicas:          5,
 					AvailableReplicas: 3,
 					ReadyReplicas:     3,
@@ -159,11 +155,11 @@ func TestReplicaSet(t *testing.T) {
 		},
 		{
 			name: "broken",
-			set: appsv1.ReplicaSet{
+			set: appsv1beta2.ReplicaSet{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "myreplicaset",
 					Namespace: "default"},
-				Status: appsv1.ReplicaSetStatus{
+				Status: appsv1beta2.ReplicaSetStatus{
 					Replicas:          5,
 					AvailableReplicas: 0,
 					ReadyReplicas:     0,
@@ -176,7 +172,7 @@ func TestReplicaSet(t *testing.T) {
 
 	for _, test := range tests {
 		c := makeFakeclient()
-		c.AppsV1().ReplicaSets("default").Create(&test.set)
+		c.AppsV1beta2().ReplicaSets("default").Create(&test.set)
 		result, message := checkReplicaSet("default", test.set.ObjectMeta.Name, c)
 		a.Equal(test.result, result, fmt.Sprintf("testcase %s for replicaset %+v failed", test.name, test.set))
 		a.NotEmpty(message, fmt.Sprintf("testcase %s for replicaset %+v failed", test.name, test.set))
@@ -189,17 +185,17 @@ func TestDeployment(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		deploy  appsv1.Deployment
+		deploy  appsv1beta2.Deployment
 		result  nrpe.Result
 		message string
 	}{
 		{
 			name: "running",
-			deploy: appsv1.Deployment{
+			deploy: appsv1beta2.Deployment{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "mydeployment",
 					Namespace: "default"},
-				Status: appsv1.DeploymentStatus{
+				Status: appsv1beta2.DeploymentStatus{
 					Replicas:          5,
 					AvailableReplicas: 5,
 					UpdatedReplicas:   5,
@@ -210,11 +206,11 @@ func TestDeployment(t *testing.T) {
 		},
 		{
 			name: "degraded",
-			deploy: appsv1.Deployment{
+			deploy: appsv1beta2.Deployment{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "mydeployment",
 					Namespace: "default"},
-				Status: appsv1.DeploymentStatus{
+				Status: appsv1beta2.DeploymentStatus{
 					Replicas:          5,
 					AvailableReplicas: 3,
 					UpdatedReplicas:   3,
@@ -225,11 +221,11 @@ func TestDeployment(t *testing.T) {
 		},
 		{
 			name: "broken",
-			deploy: appsv1.Deployment{
+			deploy: appsv1beta2.Deployment{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "mydeployment",
 					Namespace: "default"},
-				Status: appsv1.DeploymentStatus{
+				Status: appsv1beta2.DeploymentStatus{
 					Replicas:          5,
 					AvailableReplicas: 0,
 					UpdatedReplicas:   0,
@@ -242,7 +238,7 @@ func TestDeployment(t *testing.T) {
 
 	for _, test := range tests {
 		c := makeFakeclient()
-		c.AppsV1().Deployments("default").Create(&test.deploy)
+		c.AppsV1beta2().Deployments("default").Create(&test.deploy)
 		result, message := checkDeployment("default", test.deploy.ObjectMeta.Name, c)
 		a.Equal(test.result, result, fmt.Sprintf("testcase %s for deployment %+v failed", test.name, test.deploy))
 		a.NotEmpty(message, fmt.Sprintf("testcase %s for deployment %+v failed", test.name, test.deploy))
@@ -255,17 +251,17 @@ func TestDaemonSet(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		set     appsv1.DaemonSet
+		set     appsv1beta2.DaemonSet
 		result  nrpe.Result
 		message string
 	}{
 		{
 			name: "running",
-			set: appsv1.DaemonSet{
+			set: appsv1beta2.DaemonSet{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "myds",
 					Namespace: "default"},
-				Status: appsv1.DaemonSetStatus{
+				Status: appsv1beta2.DaemonSetStatus{
 					DesiredNumberScheduled: 5,
 					NumberReady:            5,
 					NumberMisscheduled:     0,
@@ -277,11 +273,11 @@ func TestDaemonSet(t *testing.T) {
 		},
 		{
 			name: "incomplete",
-			set: appsv1.DaemonSet{
+			set: appsv1beta2.DaemonSet{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "myds",
 					Namespace: "default"},
-				Status: appsv1.DaemonSetStatus{
+				Status: appsv1beta2.DaemonSetStatus{
 					DesiredNumberScheduled: 5,
 					NumberReady:            3,
 					NumberMisscheduled:     0,
@@ -293,11 +289,11 @@ func TestDaemonSet(t *testing.T) {
 		},
 		{
 			name: "misscheduled",
-			set: appsv1.DaemonSet{
+			set: appsv1beta2.DaemonSet{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "myds",
 					Namespace: "default"},
-				Status: appsv1.DaemonSetStatus{
+				Status: appsv1beta2.DaemonSetStatus{
 					DesiredNumberScheduled: 5,
 					NumberReady:            3,
 					NumberMisscheduled:     2,
@@ -311,7 +307,7 @@ func TestDaemonSet(t *testing.T) {
 
 	for _, test := range tests {
 		c := makeFakeclient()
-		c.AppsV1().DaemonSets("default").Create(&test.set)
+		c.AppsV1beta2().DaemonSets("default").Create(&test.set)
 		result, message := checkDaemonSet("default", test.set.ObjectMeta.Name, c)
 		a.Equal(test.result, result, fmt.Sprintf("testcase %s for daemonset %+v failed", test.name, test.set))
 		a.NotEmpty(message, fmt.Sprintf("testcase %s for daemonset %+v failed", test.name, test.set))
@@ -324,16 +320,16 @@ func TestStatefulSet(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		set     appsv1.StatefulSet
+		set     appsv1beta2.StatefulSet
 		result  nrpe.Result
 		message string
 	}{
 		{
 			name: "running",
-			set: appsv1.StatefulSet{ObjectMeta: metav1.ObjectMeta{
+			set: appsv1beta2.StatefulSet{ObjectMeta: metav1.ObjectMeta{
 				Name:      "mystateful",
 				Namespace: "default"},
-				Status: appsv1.StatefulSetStatus{
+				Status: appsv1beta2.StatefulSetStatus{
 					Replicas:        3,
 					ReadyReplicas:   3,
 					CurrentReplicas: 3,
@@ -344,11 +340,11 @@ func TestStatefulSet(t *testing.T) {
 		},
 		{
 			name: "incomplete",
-			set: appsv1.StatefulSet{
+			set: appsv1beta2.StatefulSet{
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "mystateful",
 					Namespace: "default"},
-				Status: appsv1.StatefulSetStatus{
+				Status: appsv1beta2.StatefulSetStatus{
 					Replicas:        3,
 					ReadyReplicas:   2,
 					CurrentReplicas: 3,
@@ -361,7 +357,7 @@ func TestStatefulSet(t *testing.T) {
 
 	for _, test := range tests {
 		c := makeFakeclient()
-		c.AppsV1().StatefulSets("default").Create(&test.set)
+		c.AppsV1beta2().StatefulSets("default").Create(&test.set)
 		result, message := checkStatefulSet("default", test.set.ObjectMeta.Name, c)
 		a.Equal(test.result, result, fmt.Sprintf("testcase %s for statefulset %+v failed", test.name, test.set))
 		a.NotEmpty(message, fmt.Sprintf("testcase %s for statefulset %+v failed", test.name, test.set))
