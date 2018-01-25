@@ -462,6 +462,28 @@ func TestNode(t *testing.T) {
 			result:  nrpe.UNKNOWN,
 			message: "unknown",
 		},
+		{
+			node: corev1.Node{
+				ObjectMeta: metav1.ObjectMeta{Name: "foo10"},
+				Status: corev1.NodeStatus{Conditions: []corev1.NodeCondition{
+					{Type: corev1.NodeReady, Status: corev1.ConditionTrue},
+					{Type: corev1.NodeOutOfDisk, Status: corev1.ConditionFalse}}},
+			},
+			name:    "Ready",
+			result:  nrpe.OK,
+			message: "ready",
+		},
+		{
+			node: corev1.Node{
+				ObjectMeta: metav1.ObjectMeta{Name: "foo11"},
+				Status: corev1.NodeStatus{Conditions: []corev1.NodeCondition{
+					{Type: corev1.NodeReady, Status: corev1.ConditionTrue},
+					{Type: corev1.NodeOutOfDisk, Status: corev1.ConditionTrue}}},
+			},
+			name:    "OutOfDisk",
+			result:  nrpe.WARNING,
+			message: "disk",
+		},
 	}
 
 	for _, test := range tests {

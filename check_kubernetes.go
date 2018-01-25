@@ -252,6 +252,10 @@ func checkNode(name string, kube kubernetes.Interface) (nrpe.Result, string) {
 
 	nosched := node.Spec.Unschedulable
 	ready := false
+	unknown := true
+
+	resourceTroubleMsg := ""
+	resourceTrouble := false
 
 	if len(node.Status.Conditions) < 1 {
 		return nrpe.UNKNOWN, "node in unknown state"
@@ -260,12 +264,39 @@ func checkNode(name string, kube kubernetes.Interface) (nrpe.Result, string) {
 	for _, cond := range node.Status.Conditions {
 		switch cond.Type {
 		case corev1.NodeReady:
+			unknown = false
 			if cond.Status == corev1.ConditionTrue {
 				ready = true
 			}
-		default: // invalid value for Type
-			return nrpe.UNKNOWN, "node in unknown state (invalid condition)"
+		case corev1.NodeOutOfDisk:
+			if cond.Status == corev1.ConditionTrue {
+				resourceTrouble = true
+				resourceTroubleMsg = resourceTroubleMsg + "out of disk "
+			}
+		case corev1.NodeDiskPressure:
+			if cond.Status == corev1.ConditionTrue {
+				resourceTrouble = true
+				resourceTroubleMsg = resourceTroubleMsg + "has disk pressure "
+			}
+		case corev1.NodeMemoryPressure:
+			if cond.Status == corev1.ConditionTrue {
+				resourceTrouble = true
+				resourceTroubleMsg = resourceTroubleMsg + "has memory pressure "
+			}
+		case corev1.NodeNetworkUnavailable:
+			if cond.Status == corev1.ConditionTrue {
+				resourceTrouble = true
+				resourceTroubleMsg = resourceTroubleMsg + "network unavailable "
+			}
 		}
+	}
+
+	if unknown {
+		return nrpe.UNKNOWN, "node in unknown state (invalid condition)"
+	}
+
+	if ready && resourceTrouble {
+		return nrpe.WARNING, "node ready but hits resource limits ( " + resourceTroubleMsg + ")"
 	}
 
 	if ready && nosched {
@@ -274,6 +305,10 @@ func checkNode(name string, kube kubernetes.Interface) (nrpe.Result, string) {
 
 	if ready {
 		return nrpe.OK, "node ready"
+	}
+
+	if !ready && resourceTrouble {
+		return nrpe.CRITICAL, "node not ready ( " + resourceTroubleMsg + ")"
 	}
 
 	return nrpe.CRITICAL, "node not ready"
